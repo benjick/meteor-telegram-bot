@@ -51,9 +51,11 @@ Array containing all the added listeners and their callbacks
 Takes the incoming message, strips the *@botname* out if any (used in channels with multiple bots) and returns an array where every key represents a command or argument. 
 
 For example:
-    var msg = "/test@thisbot is fun"
-    msg = TelegramBot.parseCommandString(msg);
-    console.log(msg) // [ '/test', 'is', 'fun' ]
+```js
+var msg = "/test@thisbot is fun"
+msg = TelegramBot.parseCommandString(msg);
+console.log(msg) // [ '/test', 'is', 'fun' ]
+```
 
 This means you can get the arguments in a nice way. This is done when a webHook is recieved.
 
