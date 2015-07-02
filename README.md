@@ -1,10 +1,10 @@
 Adds an easy to use Telegram Bot API wrapper.
 
-### Installation
+## Installation
 
     meteor add benjick:telegram-bot
 
-### Usage
+## Usage
 
 First of all, follow the instructions at [https://core.telegram.org/bots](https://core.telegram.org/bots) go get your authkey.
 
@@ -18,7 +18,46 @@ Now you can either set the environment variable `TELEGRAM_TOKEN` to your token o
 
 Now you can add listeners and listen for incoming webHooks.
 
-#### A few examples
+### API
+
+#### TelegramBot.addListener(command, callback)
+
+Add a command which should be listened for by the server. If this command is found the callback will be called. The callback takes three arguments:
+
+ * command - the command parsed to an array (see Telegram.parseCommandString)
+ * username - username of the sender as a string
+ * original - the original object sent from Telegram
+
+See examples below
+
+#### TelegramBot.method(method, object);
+
+Call a Telegram Bot API method. Full spec at [https://core.telegram.org/bots/api#available-methods](https://core.telegram.org/bots/api#available-methods)
+
+Check if the auth token is correct:
+
+    TelegramBot.method(getMe)
+
+#### TelegramBot.send(message, chatId);
+
+Shorthand for `TelegramBot.method('sendMessage', { chat_id: chatId, text: message })`.
+
+#### TelegramBot.triggers[]
+
+Array containing all the added listeners and their callbacks
+
+#### TelegramBot.parseCommandString(msg)
+
+Takes the incoming message, strips the *@botname* out if any (used in channels with multiple bots) and returns an array where every key represents a command or argument. 
+
+For example:
+    var msg = "/test@thisbot is fun"
+    msg = TelegramBot.parseCommandString(msg);
+    console.log(msg) // [ '/test', 'is', 'fun' ]
+
+This means you can get the arguments in a nice way. This is done when a webHook is recieved.
+
+### A few examples
 
 ```js
 if (Meteor.isServer) {
@@ -48,7 +87,19 @@ TelegramBot.addListener('/hi', function(command, username) {
 })
 ```
 
-#### Overriding listerner
+Listing all commands:
+
+```js
+TelegramBot.addListener('/help', function(command) {
+  var msg = "I have the following commands loaded:\n";
+  TelegramBot.triggers.forEach(function (post) {
+    msg = msg + "- " + post.command + "\n"
+  });
+  return msg
+})
+```
+
+#### Overriding listeners
 
 You can do what you want in the callback for the listener really. For example call another method instead of sendMessage
 
