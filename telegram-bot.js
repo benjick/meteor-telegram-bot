@@ -8,7 +8,10 @@ TelegramBot.checkConnections = function() {
 
 }
 
-TelegramBot.s = function(msg) {
+TelegramBot.parseCommandString = function(msg) {
+	// splits string into an array 
+	// and removes the @botname from the command
+	// then returns the array
 	msg = msg.split(' ')
 	msg[0] = msg[0].split('@')[0]
 	return msg;

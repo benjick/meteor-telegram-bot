@@ -7,7 +7,7 @@ Picker.route('/incomingTelegram', function(params, req, res, next) {
 		var chatId = req.body.message.chat.id;
 		var from = req.body.message.from.username;
 		if(msg = req.body.message.text) {
-			msg = TelegramBot.s(msg)
+			msg = TelegramBot.parseCommandString(msg)
 			var obj = _.find(TelegramBot.triggers, function(obj) { return obj.command == msg[0] })
 			if(obj) {
 				TelegramBot.send(obj.callback(msg, from), chatId)
