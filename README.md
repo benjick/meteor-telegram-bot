@@ -12,7 +12,7 @@ Then set your webHookUrl to `https://yourmeteorsite.com/incomingTelegram` with
 
     https://api.telegram.org/bot123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11/setWebhook?url=https://yourmeteorsite.com/incomingTelegram
 
-Where `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` is the token you got from BotFather. The request has to be over https (Self-signed doesn't work for not, but the free cert from Cloudflare works)
+Where `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11` is the token you got from BotFather. The request has to be over https (self-signed doesn't work for now, but the free cert from Cloudflare works)
 
 Now you can either set the environment variable `TELEGRAM_TOKEN` to your token or you can run `TelegramBot.token = 'MY_TOKEN_HERE'` on startup.
 
@@ -33,8 +33,9 @@ if (Meteor.isServer) {
         return false
         // if you return false the bot wont answer
       }
-      // if there is an argument the bot will return the first argument
-      return "this is callback " + command[1] 
+      // command[1] will be the first argument, command[2] the second etc
+      // below the bot will reply with 'test: hi' if you sent him /test hi
+      return "test: " + command[1] 
     })
   });
 }
