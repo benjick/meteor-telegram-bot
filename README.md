@@ -42,7 +42,7 @@ Check if the auth token is correct:
 
 Shorthand for `TelegramBot.method('sendMessage', { chat_id: chatId, text: message })`.
 
-#### TelegramBot.triggers[]
+#### TelegramBot.triggers = []
 
 Array containing all the added listeners and their callbacks
 
