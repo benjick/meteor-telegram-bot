@@ -28,6 +28,9 @@ TelegramBot.addListener = function(command, callback) {
 }
 
 TelegramBot.send = function(msg, chatId) {
+	if(!msg) {
+		return false;
+	}
 	var token = TelegramBot.token || process.env.TELEGRAM_TOKEN;
 	var base = TelegramBot.apiBase;
 

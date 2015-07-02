@@ -30,8 +30,8 @@ if (Meteor.isServer) {
     // command will contain the entire command in an array where command[0] is the command. 
     // In this case '/test'. Each argument will follow.
       if(!command[1]) { // if no arguments
-        return "requires argument" 
-        // what you return is what the bot will say
+        return false
+        // if you return false the bot wont answer
       }
       // if there is an argument the bot will return the first argument
       return "this is callback " + command[1] 
