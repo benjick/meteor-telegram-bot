@@ -4,10 +4,6 @@ TelegramBot.apiBase = "https://api.telegram.org/bot";
 TelegramBot.token = false;
 TelegramBot.init = false;
 
-TelegramBot.checkConnections = function() {
-
-}
-
 TelegramBot.parseCommandString = function(msg) {
 	// splits string into an array 
 	// and removes the @botname from the command
