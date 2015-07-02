@@ -10,7 +10,7 @@ Picker.route('/incomingTelegram', function(params, req, res, next) {
 			msg = TelegramBot.parseCommandString(msg)
 			var obj = _.find(TelegramBot.triggers, function(obj) { return obj.command == msg[0] })
 			if(obj) {
-				TelegramBot.send(obj.callback(msg, from), chatId)
+				TelegramBot.send(obj.callback(msg, from, req.body.message), chatId)
 			}
 		}
 	}

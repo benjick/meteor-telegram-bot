@@ -47,3 +47,17 @@ TelegramBot.addListener('/hi', function(command, username) {
   return "hi @" + username
 })
 ```
+
+#### Overriding listerner
+
+You can do what you want in the callback for the listener really. For example call another method instead of sendMessage
+
+```js
+TelegramBot.addListener('/geo', function(command, username, original) {
+  TelegramBot.method('sendLocation',{
+    chat_id: original.chat.id,
+    latitude: 59.329323,
+    longitude: 18.068581
+  })
+})
+```

@@ -26,23 +26,26 @@ TelegramBot.addListener = function(command, callback) {
 	}
 }
 
-TelegramBot.send = function(msg, chatId) {
-	if(!msg) {
-		return false;
-	}
+TelegramBot.method = function(method, object) {
 	var token = TelegramBot.token || process.env.TELEGRAM_TOKEN;
-	var base = TelegramBot.apiBase;
 
 	try {
-		HTTP.get(base + token + '/sendMessage', {
-			params: {
-				chat_id: chatId,
-				text: msg,
-				disable_web_page_preview: true
-			}
+		HTTP.get(TelegramBot.apiBase + token + '/' + method, {
+			params: object
 		});
 	}
 	catch (e) {
 		console.log(e)
 	}
+}
+
+TelegramBot.send = function(msg, chatId) {
+	if(!msg) {
+		return false;
+	}
+
+	TelegramBot.method('sendMessage', {
+		chat_id: chatId,
+		text: msg
+	})
 }
