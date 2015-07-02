@@ -1,6 +1,6 @@
 Package.describe({
   name: 'benjick:telegram-bot',
-  version: '0.2.0',
+  version: '0.3.0',
   summary: 'TelegramBot API wrapper',
   git: 'https://github.com/benjick/meteor-telegram-bot',
   documentation: 'README.md'
@@ -15,7 +15,7 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function(api) {
-  api.use('tinytest');
-  api.use('benjick:telegram-bot');
-  api.addFiles('telegram-bot-tests.js');
+  api.use(['tinytest','benjick:telegram-bot','http'], 'server');
+  Npm.depends({"body-parser": "1.13.1"})
+  api.addFiles('telegram-bot-tests.js', 'server');
 });
