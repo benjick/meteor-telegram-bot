@@ -27,12 +27,14 @@ TelegramBot.addListener = function(command, callback) {
 }
 
 TelegramBot.method = function(method, object) {
+	var object = object || {};
 	var token = TelegramBot.token || process.env.TELEGRAM_TOKEN;
 
 	try {
-		HTTP.get(TelegramBot.apiBase + token + '/' + method, {
+		var res = HTTP.get(TelegramBot.apiBase + token + '/' + method, {
 			params: object
 		});
+		return res.data
 	}
 	catch (e) {
 		console.log(e)
