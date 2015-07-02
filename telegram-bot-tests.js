@@ -32,8 +32,10 @@ Tinytest.add('Is apiBase set correct', function (test) {
 
 Tinytest.add('will it blend', function (test) {
 	HTTP.get = function(url, options) {
+    test.equal(options.params.chat_id, "test");
 		test.equal('https://api.telegram.org/bottest/sendMessage', url)
-		test.equal(options.params.chat_id, "test")
+
+    return "we are testing"
 	}
 	TelegramBot.token = "test";
 	TelegramBot.send("test", "test");

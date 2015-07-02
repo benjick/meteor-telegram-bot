@@ -34,7 +34,9 @@ TelegramBot.method = function(method, object) {
 		var res = HTTP.get(TelegramBot.apiBase + token + '/' + method, {
 			params: object
 		});
-		return res.data
+		if(res.data) {
+			return res.data
+		}
 	}
 	catch (e) {
 		console.log(e)
