@@ -45,6 +45,11 @@ TelegramBot.parsePollResult = function(data) {
 				TelegramBot.send(obj.callback(msg, from, item.message), chatId)
 			}
 		}
+		else {
+			if(typeof(TelegramBot.catchAll) === 'function') {
+				TelegramBot.catchAll(item);
+			}
+		}
 	});
 }
 
