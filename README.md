@@ -24,6 +24,26 @@ Add a command which should be listened for by the server. If this command is fou
 
 See examples below
 
+#### TelegramBot.start();
+
+Starts polling the Telegram-servers
+
+#### TelegramBot.stop();
+
+Stops polling
+
+#### TelegramBot.poll();
+
+Does the actual request to Telegrams server with the method `getUpdates` and sets the offset so we can mark the messages as read
+
+#### TelegramBot.parsePollResult(data);
+
+Parses the result from the polling and executes callbacks from `addListener`
+
+#### TelegramBot.requestUrl(method);
+
+Creates an URL which is GETable with baseUrl + token + method
+
 #### TelegramBot.method(method, object);
 
 Call a Telegram Bot API method. Full spec at [https://core.telegram.org/bots/api#available-methods](https://core.telegram.org/bots/api#available-methods)
