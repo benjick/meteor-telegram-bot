@@ -40,7 +40,7 @@ TelegramBot.parsePollResult = function(data) {
 		var from = item.message.from.username;
 		if(msg = item.message.text) {
 			msg = TelegramBot.parseCommandString(msg)
-			var obj = _.find(TelegramBot.triggers, function(obj)  {return obj.command == msg[0] })
+			var obj = _.find(TelegramBot.triggers, function(obj) { return obj.command == msg[0] })
 			if(obj) {
 				TelegramBot.send(obj.callback(msg, from, item.message), chatId)
 			} else {
