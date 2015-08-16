@@ -1,8 +1,8 @@
 Package.describe({
-  name: 'benjick:telegram-bot',
-  version: '1.0.0',
-  summary: 'TelegramBot API wrapper',
-  git: 'https://github.com/benjick/meteor-telegram-bot',
+  name: 'dcsan:telegram-bot',
+  version: '0.0.1',
+  summary: 'TelegramBot API wrapper - FORK',
+  git: 'https://github.com/dcsan/meteor-telegram-bot',
   documentation: 'README.md'
 });
 
