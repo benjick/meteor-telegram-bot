@@ -24,7 +24,7 @@ TelegramBot.poll = function() {
 
 TelegramBot.start = function() {
 	TelegramBot.poll();
-	TelegramBot.interval = Meteor.setInterval(function() {
+	TelegramBot.interval = Meteor.setInterval(function () {
 		TelegramBot.poll();
 	}, 1000);
 }
@@ -34,15 +34,13 @@ TelegramBot.stop = function() {
 }
 
 TelegramBot.parsePollResult = function(data) {
-	data.map(function(item) {
+	data.map(function (item) {
 		TelegramBot.getUpdatesOffset = item.update_id;
 		var chatId = item.message.chat.id;
 		var from = item.message.from.username;
 		if(msg = item.message.text) {
 			msg = TelegramBot.parseCommandString(msg)
-			var obj = _.find(TelegramBot.triggers, function(obj) {
-				return obj.command == msg[0]
-			})
+			var obj = _.find(TelegramBot.triggers, function(obj)  {return obj.command == msg[0] })
 			if(obj) {
 				TelegramBot.send(obj.callback(msg, from, item.message), chatId)
 			} else {
