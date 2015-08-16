@@ -38,15 +38,15 @@ TelegramBot.parsePollResult = function(data) {
 		TelegramBot.getUpdatesOffset = item.update_id;
 		var chatId = item.message.chat.id;
 		var from = item.message.from.username;
-		if (msg = item.message.text) {
+		if(msg = item.message.text) {
 			msg = TelegramBot.parseCommandString(msg)
 			var obj = _.find(TelegramBot.triggers, function(obj) {
 				return obj.command == msg[0]
 			})
-			if (obj) {
+			if(obj) {
 				TelegramBot.send(obj.callback(msg, from, item.message), chatId)
 			} else {
-				if (typeof(TelegramBot.catchAll) === 'function') {
+				if(typeof(TelegramBot.catchAll) === 'function') {
 					TelegramBot.catchAll(item);
 				}
 			}
@@ -60,7 +60,7 @@ TelegramBot.requestUrl = function(method) {
 }
 
 TelegramBot.addListener = function(command, callback) {
-	if (typeof(command) === 'string' && typeof(callback) === 'function') {
+	if(typeof(command) === 'string' && typeof(callback) === 'function') {
 		TelegramBot.triggers.push({
 			command: command,
 			callback: callback
@@ -79,7 +79,7 @@ TelegramBot.method = function(method, object) {
 		var res = HTTP.get(TelegramBot.requestUrl(method), {
 			params: object
 		});
-		if (res.data) {
+		if(res.data) {
 			return res.data
 		}
 	}
@@ -89,7 +89,7 @@ TelegramBot.method = function(method, object) {
 }
 
 TelegramBot.send = function(msg, chatId) {
-	if (!msg) {
+	if(!msg) {
 		return false;
 	}
 
