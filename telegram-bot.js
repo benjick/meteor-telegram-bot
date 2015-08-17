@@ -6,8 +6,10 @@ TelegramBot.init = false;
 TelegramBot.getUpdatesOffset = 0;
 TelegramBot.interval = false;
 
+var POLLING_INTERVAL = 1000;       // 10s long poll?
+
 TelegramBot.parseCommandString = function(msg) {
-	// splits string into an array 
+	// splits string into an array
 	// and removes the @botname from the command
 	// then returns the array
 	msg = msg.split(' ')
@@ -17,7 +19,9 @@ TelegramBot.parseCommandString = function(msg) {
 
 TelegramBot.poll = function() {
 	var result = TelegramBot.method("getUpdates", {
-		offset: TelegramBot.getUpdatesOffset + 1
+		offset: TelegramBot.getUpdatesOffset + 1,
+        // limit: 200,  // just in case
+        // timeout: POLLING_INTERVAL
 	});
 	TelegramBot.parsePollResult(result.result);
 }
@@ -26,7 +30,7 @@ TelegramBot.start = function() {
 	TelegramBot.poll();
 	TelegramBot.interval = Meteor.setInterval(function () {
 		TelegramBot.poll();
-	}, 1000);
+	}, POLLING_INTERVAL);
 }
 
 TelegramBot.stop = function() {
@@ -43,11 +47,10 @@ TelegramBot.parsePollResult = function(data) {
 			var obj = _.find(TelegramBot.triggers, function(obj) { return obj.command == msg[0] })
 			if(obj) {
 				TelegramBot.send(obj.callback(msg, from, item.message), chatId)
-			}
-		}
-		else {
-			if(typeof(TelegramBot.catchAll) === 'function') {
-				TelegramBot.catchAll(item);
+			} else {
+				if(typeof(TelegramBot.catchAll) === 'function') {
+					TelegramBot.catchAll(item);
+				}
 			}
 		}
 	});
