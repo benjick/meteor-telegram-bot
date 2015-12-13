@@ -1,6 +1,6 @@
 Package.describe({
   name: 'benjick:telegram-bot',
-  version: '1.0.0',
+  version: '1.1.0',
   summary: 'TelegramBot API wrapper',
   git: 'https://github.com/benjick/meteor-telegram-bot',
   documentation: 'README.md'
@@ -8,7 +8,7 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.1.0.2');
-  api.use(['http'], 'server');
+  api.use(['http', 'ecmascript'], 'server');
   api.addFiles(['telegram-bot.js'], 'server');
   api.export('TelegramBot', 'server');
 });

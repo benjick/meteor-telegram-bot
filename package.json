@@ -1,0 +1,10 @@
+{
+  "name": "meteor-telegram-bot",
+  "devDependencies": {
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^2.0.0"
+  },
+  "eslintConfig": {
+    "extends": "airbnb/base"
+  }
+}

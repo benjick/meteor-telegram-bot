@@ -14,7 +14,7 @@ Now you can add listeners and listen for incoming webHooks.
 
 ### API
 
-#### TelegramBot.addListener(command, callback)
+#### TelegramBot.addListener(command, callback, type = text)
 
 Add a command which should be listened for by the server. If this command is found the callback will be called. The callback takes three arguments:
 
@@ -23,6 +23,8 @@ Add a command which should be listened for by the server. If this command is fou
  * original - the original object sent from Telegram
 
 See examples below
+
+If you set type to anything else than `'text'` (default value) in type `command` has no effect and that function will run every time you get something with that type (for example `document` (getting files) or `voice` (voice recordings)).
 
 #### TelegramBot.start();
 
@@ -62,7 +64,7 @@ Array containing all the added listeners and their callbacks
 
 #### TelegramBot.parseCommandString(msg)
 
-Takes the incoming message, strips the *@botname* out if any (used in channels with multiple bots) and returns an array where every key represents a command or argument. 
+Takes the incoming message, strips the *@botname* out if any (used in channels with multiple bots) and returns an array where every key represents a command or argument.
 
 For example:
 ```js
@@ -82,8 +84,8 @@ if (Meteor.isServer) {
     TelegramBot.token = '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11';
     TelegramBot.start(); // start the bot
     // add a listener for '/test'
-    TelegramBot.addListener('/test', function(command) { 
-    // command will contain the entire command in an array where command[0] is the command. 
+    TelegramBot.addListener('/test', function(command) {
+    // command will contain the entire command in an array where command[0] is the command.
     // In this case '/test'. Each argument will follow.
       if(!command[1]) { // if no arguments
         return false
@@ -91,7 +93,7 @@ if (Meteor.isServer) {
       }
       // command[1] will be the first argument, command[2] the second etc
       // below the bot will reply with 'test: hi' if you sent him /test hi
-      return "test: " + command[1] 
+      return "test: " + command[1]
     })
   });
 }
@@ -109,11 +111,26 @@ Listing all commands:
 ```js
 TelegramBot.addListener('/help', function(command) {
   var msg = "I have the following commands loaded:\n";
-  TelegramBot.triggers.forEach(function (post) {
-    msg = msg + "- " + post.command + "\n"
+  TelegramBot.triggers.text.forEach(function (post) {
+    msg = msg + "- " + post.command + "\n";
   });
-  return msg
+  return msg;
 })
+```
+
+Example using other types than the default
+
+```js
+TelegramBot.addListener('incoming_document', function(c, u, o) {
+  TelegramBot.send('Got a file with ID ' + o.document.file_id, o.chat.id);
+  var file = TelegramBot.method('getFile', {
+    file_id: o.document.file_id,
+  }).result.file_path;
+  // actually don't do this because it will expose
+  // your Telegram API key
+  TelegramBot.send('Download the file at https://api.telegram.org/file/bot' + TelegramBot.token + '/' + file, o.chat.id);
+}, 'document');
+
 ```
 
 #### Overriding listeners
