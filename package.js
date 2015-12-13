@@ -8,7 +8,7 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.1.0.2');
-  api.use(['http', 'ecmascript'], 'server');
+  api.use(['http', 'ecmascript@0.1.6'], 'server');
   api.addFiles(['telegram-bot.js'], 'server');
   api.export('TelegramBot', 'server');
 });
