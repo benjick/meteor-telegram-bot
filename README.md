@@ -68,9 +68,9 @@ Takes the incoming message, strips the *@botname* out if any (used in channels w
 
 For example:
 ```js
-var msg = "/test@thisbot is fun"
+var msg = "/test@thisbot is fun";
 msg = TelegramBot.parseCommandString(msg);
-console.log(msg) // [ '/test', 'is', 'fun' ]
+console.log(msg); // [ '/test', 'is', 'fun' ]
 ```
 
 This means you can get the arguments in a nice way. This is done when a webHook is recieved.
@@ -78,8 +78,8 @@ This means you can get the arguments in a nice way. This is done when a webHook 
 ### A few examples
 
 ```js
-if (Meteor.isServer) {
-	Meteor.startup(function () {
+if(Meteor.isServer) {
+	Meteor.startup(function() {
 	// set our token
 	TelegramBot.token = '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11';
 	TelegramBot.start(); // start the bot
@@ -115,7 +115,7 @@ TelegramBot.addListener('/help', function(command) {
 	msg = msg + "- " + post.command + "\n";
 	});
 	return msg;
-})
+});
 ```
 
 Example using other types than the default
