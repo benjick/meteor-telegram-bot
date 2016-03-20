@@ -20,7 +20,9 @@ TelegramBot.poll = function() {
 		offset: TelegramBot.getUpdatesOffset + 1,
 	});
 	
-	if(result)
+	// Additional check for duplicate poll data
+	// Also skips the call to parsePollResults if there were no results
+	if(result && result.result.length > 0 && TelegramBot.getUpdatesOffset !==  _.last(result.result).update_id)
 		TelegramBot.parsePollResult(result.result);
 }
 
