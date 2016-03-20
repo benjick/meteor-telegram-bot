@@ -1,5 +1,6 @@
 TelegramBot = {};
 TelegramBot.triggers = {};
+TelegramBot.conversations = {};
 TelegramBot.apiBase = "https://api.telegram.org/bot";
 TelegramBot.token = false;
 TelegramBot.init = false;
@@ -44,7 +45,10 @@ TelegramBot.parsePollResult = function(data) {
 		const message = item.message;
 		const type = Object.keys(message).pop();
 		const from = item.message.from.username;
-		if(type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
+		
+		if(typeof(TelegramBot.conversations[from]) !== 'undefined') {
+			TelegramBot.conversations[from].callback(from, message.text, message.chat.id);
+		} else if(type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
 			const msg = TelegramBot.parseCommandString(item.message.text);
 			const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
 			if(obj) {
@@ -81,6 +85,37 @@ TelegramBot.addListener = function(command, callback, type = 'text') {
 	}
 }
 
+TelegramBot.startConversation = function(username, callback, init_vars) {
+	if(typeof(username) === 'string' && typeof(callback) === 'function') {
+		if(typeof(TelegramBot.conversations[username]) === 'undefined') {
+			if(typeof(init_vars) !== "object") init_vars = {};
+			TelegramBot.conversations[username] = {
+				callback: callback,
+				variables: init_vars
+			};
+			console.log('Started conversation with ' + username);
+		} else {
+			console.log('There already is an existing conversation with ' + username);
+		}
+	} else {
+		console.log('Error starting conversation with ' +  username);
+	}
+}
+
+TelegramBot.endConversation = function(username) {
+	if(typeof(username) === 'string') {
+		if(typeof(TelegramBot.conversations[username]) !== 'undefined') {
+			TelegramBot.conversations = _.omit(TelegramBot.conversations, username);
+			console.log('Ended conversation with ' +  username + '.');
+			console.log('Now we have ' + TelegramBot.conversations.length + ' active conversations.');
+		} else {
+			console.log('There was no conversation with ' +  username + '.');
+		}
+	} else {
+		console.log('Error ending conversation with ' +  username + '.');
+	}
+}
+
 TelegramBot.method = function(method, object = {}) {
 	try {
 		const res = HTTP.get(TelegramBot.requestUrl(method), {
@@ -102,8 +137,15 @@ TelegramBot.send = function(msg, chatId) {
 		return false;
 	}
 
-	TelegramBot.method('sendMessage', {
-		chat_id: chatId,
-		text: msg
-	});
+	if(markdown)
+		TelegramBot.method('sendMessage', {
+			chat_id: chatId,
+			text: msg,
+			parse_mode: 'Markdown'
+		});
+	else
+		TelegramBot.method('sendMessage', {
+			chat_id: chatId,
+			text: msg
+		});
 }
