@@ -97,7 +97,7 @@ TelegramBot.method = function(method, object = {}) {
 	}
 }
 
-TelegramBot.send = function(msg, chatId) {
+TelegramBot.send = function(msg, chatId, markdown) {
 	if(!msg) {
 		return false;
 	}
