@@ -46,19 +46,28 @@ TelegramBot.parsePollResult = function(data) {
 		const type = Object.keys(message).pop();
 		const from = item.message.from.username;
 		
-		if(typeof(TelegramBot.conversations[from]) !== 'undefined') {
-			TelegramBot.conversations[from].callback(from, message.text, message.chat.id);
-		} else if(type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
-			const msg = TelegramBot.parseCommandString(item.message.text);
-			const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
+		var is_conversation = false;
+		
+		if(typeof(TelegramBot.conversations[message.chat.id]) !== 'undefined') {
+			const obj = _.find(TelegramBot.triggers[message.chat.id], obj => obj.username == from);
 			if(obj) {
-				TelegramBot.send(obj.callback(msg, from, message), message.chat.id);
+				is_conversation = true;
+				obj.callback(from, message.text, message.chat.id);
 			}
-		} else {
-			if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
-				TelegramBot.triggers[type].map(trigger => {
-					trigger.callback('N/A', from, message);
-				});
+		}
+		if(!is_conversation) {
+			if(type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
+				const msg = TelegramBot.parseCommandString(item.message.text);
+				const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
+				if(obj) {
+					TelegramBot.send(obj.callback(msg, from, message), message.chat.id);
+				}
+			} else {
+				if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
+					TelegramBot.triggers[type].map(trigger => {
+						trigger.callback('N/A', from, message);
+					});
+				}
 			}
 		}
 	});
@@ -85,35 +94,34 @@ TelegramBot.addListener = function(command, callback, type = 'text') {
 	}
 }
 
-TelegramBot.startConversation = function(username, callback, init_vars) {
+TelegramBot.startConversation = function(username, chat_id, callback, init_vars) {
 	if(typeof(username) === 'string' && typeof(callback) === 'function') {
-		if(typeof(TelegramBot.conversations[username]) === 'undefined') {
-			if(typeof(init_vars) !== "object") init_vars = {};
-			TelegramBot.conversations[username] = {
-				callback: callback,
-				variables: init_vars
-			};
-			console.log('Started conversation with ' + username);
-		} else {
-			console.log('There already is an existing conversation with ' + username);
+		if(typeof(TelegramBot.conversations[chat_id]) === 'undefined') {
+			TelegramBot.conversations[chat_id] = [];
 		}
+		if(typeof(init_vars) !== "object") init_vars = {};
+		TelegramBot.conversations[chat_id].push(_.defaults(init_vars, { username: username, callback: callback}));
+		console.log('Started conversation in Chat ID (' + chat_id + ') with ' + username);
+		console.log('Now we have ' + Object.keys(TelegramBot.conversations).length + ' chats with active conversations.');
 	} else {
-		console.log('Error starting conversation with ' +  username);
+		console.log('Error starting conversation in Chat ID (' + chat_id + ') with ' +  username);
 	}
 }
 
-TelegramBot.endConversation = function(username) {
-	if(typeof(username) === 'string') {
-		if(typeof(TelegramBot.conversations[username]) !== 'undefined') {
-			TelegramBot.conversations = _.omit(TelegramBot.conversations, username);
-			console.log('Ended conversation with ' +  username + '.');
-			console.log('Now we have ' + TelegramBot.conversations.length + ' active conversations.');
-		} else {
-			console.log('There was no conversation with ' +  username + '.');
+TelegramBot.endConversation = function(username, chat_id) {
+	if(typeof(TelegramBot.conversations[chat_id]) !== 'undefined') {
+		const obj = _.find(TelegramBot.triggers[chat_id], obj => obj.username == username);
+		if(obj) {
+			TelegramBot.conversations[chat_id] = _.reject(TelegramBot.conversations[chat_id], obj => obj.username == username);
+			if(Object.keys(TelegramBot.conversations[chat_id]).length == 0)
+				TelegramBot.conversations = _.omit(TelegramBot.conversations, chat_id);
+			
+			console.log('Ended conversation with ' +  username + ' in Chat ID(' + chat_id + ').');
+			console.log('Now we have ' + Object.keys(TelegramBot.conversations).length + ' chats with active conversations.');
+			return true;
 		}
-	} else {
-		console.log('Error ending conversation with ' +  username + '.');
 	}
+	console.log('There was no conversation with ' +  username + ' in Chat ID(' + chat_id + ').');
 }
 
 TelegramBot.method = function(method, object = {}) {
