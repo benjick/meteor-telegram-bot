@@ -102,8 +102,15 @@ TelegramBot.send = function(msg, chatId) {
 		return false;
 	}
 
-	TelegramBot.method('sendMessage', {
-		chat_id: chatId,
-		text: msg
-	});
+	if(markdown)
+		TelegramBot.method('sendMessage', {
+			chat_id: chatId,
+			text: msg,
+			parse_mode: 'Markdown'
+		});
+	else
+		TelegramBot.method('sendMessage', {
+			chat_id: chatId,
+			text: msg
+		});
 }
