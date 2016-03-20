@@ -19,7 +19,11 @@ TelegramBot.poll = function() {
 	const result = TelegramBot.method("getUpdates", {
 		offset: TelegramBot.getUpdatesOffset + 1,
 	});
-	TelegramBot.parsePollResult(result.result);
+	
+	// Additional check for duplicate poll data
+	// Also skips the call to parsePollResults if there were no results
+	if(result && result.result.length > 0 && TelegramBot.getUpdatesOffset !==  _.last(result.result).update_id)
+		TelegramBot.parsePollResult(result.result);
 }
 
 TelegramBot.start = function() {
@@ -50,7 +54,7 @@ TelegramBot.parsePollResult = function(data) {
 			if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
 				TelegramBot.triggers[type].map(trigger => {
 					trigger.callback('N/A', from, message);
-				})
+				});
 			}
 		}
 	});
@@ -58,7 +62,7 @@ TelegramBot.parsePollResult = function(data) {
 
 TelegramBot.requestUrl = function(method) {
 	const token = TelegramBot.token || process.env.TELEGRAM_TOKEN;
-	return TelegramBot.apiBase + token + '/' + method
+	return TelegramBot.apiBase + token + '/' + method;
 }
 
 TelegramBot.addListener = function(command, callback, type = 'text') {
@@ -69,25 +73,27 @@ TelegramBot.addListener = function(command, callback, type = 'text') {
 		TelegramBot.triggers[type].push({
 			command: command,
 			callback: callback
-		})
+		});
 		console.log('Added command ' + command);
 	}
 	else {
-		console.log("Error adding command " + command)
+		console.log("Error adding command " + command);
 	}
 }
 
 TelegramBot.method = function(method, object = {}) {
 	try {
 		const res = HTTP.get(TelegramBot.requestUrl(method), {
-			params: object,
+			params: object
 		});
 		if(res.data) {
 			return res.data;
 		}
 	}
 	catch (e) {
-		console.log(e)
+		console.log("Error in polling:");
+		console.log(e);
+		return false;
 	}
 }
 
@@ -99,5 +105,5 @@ TelegramBot.send = function(msg, chatId) {
 	TelegramBot.method('sendMessage', {
 		chat_id: chatId,
 		text: msg
-	})
+	});
 }
