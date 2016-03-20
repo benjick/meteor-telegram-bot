@@ -182,31 +182,35 @@ TelegramBot.addListener('/geo', function(command, username, original) {
 
 You can monitor all incoming chat messages from a user using conversations.
 
-Below is a basic example showing how a Bot can ask for 2 responses and print them out.
+Below is a basic example showing how a Bot can ask for 3 responses and print them out.
 The conversation is initiated by the user using `/start`.
 
 ```js
 TelegramBot.addListener('/start', function(command, username, messageraw) {
     TelegramBot.startConversation(username, messageraw.chat.id, function(username, message, chat_id) {
         var obj = _.find(TelegramBot.conversations[chat_id], obj => obj.username == username);
-        console.log('Conversation Status: ' + obj);
         switch(obj.stage) {
             case 0:
-                TelegramBot.send('You have first responded with: ' + message + '\nWhat else do you want to say?', chat_id);
-                obj.first_message = message;
+                obj.personName = message;
+                TelegramBot.send('Cool. What\'s your height?', chat_id);
                 obj.stage++;
                 break;
 
             case 1:
-                TelegramBot.send('You then said: ' + message + '\nReply to repeat what you said', chat_id);
-                obj.second_message = message;
+                obj.personHeight = message;
+                // Sample markdown support - name will be bold
+                TelegramBot.send('Nice. What do you work as, *' + obj.personName + '*?', chat_id, true);
+                obj.stage++;
                 break;
 
             case 2:
-                TelegramBot.send("1. " + obj.first_message + "\n2. " + obj.second_message);
-                TelegramBot.endConversation(username, chat_id);
+                obj.personJob = message;
+                TelegramBot.send('Nice to meet you, ' + obj.personHeight + '-tall ' + obj.personJob + ' ' + obj.personName + '!', chat_id);
                 break;
         }
-    }, {stage: 0, first_message: "", second_message: ""} );
+        console.log('Conversation Status: ' + obj);
+    }, {stage: 0, personName: "", personHeight: "", personJob: ""} );
+    // The return in this listener will be the first prompt
+    return "Hey, what's your name?";
 });
 ```
