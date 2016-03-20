@@ -45,14 +45,15 @@ TelegramBot.parsePollResult = function(data) {
 		const message = item.message;
 		const type = Object.keys(message).pop();
 		const from = item.message.from.username;
+		const chatId = message.chat.id;
 		
 		var is_conversation = false;
 		
-		if(typeof(TelegramBot.conversations[message.chat.id]) !== 'undefined') {
-			const obj = _.find(TelegramBot.triggers[message.chat.id], obj => obj.username == from);
+		if(typeof(TelegramBot.conversations[chatId]) !== 'undefined') {
+			const obj = _.find(TelegramBot.conversations[chatId], obj => obj.username == from);
 			if(obj) {
 				is_conversation = true;
-				obj.callback(from, message.text, message.chat.id);
+				obj.callback(from, message.text, chatId);
 			}
 		}
 		if(!is_conversation) {
@@ -60,7 +61,7 @@ TelegramBot.parsePollResult = function(data) {
 				const msg = TelegramBot.parseCommandString(item.message.text);
 				const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
 				if(obj) {
-					TelegramBot.send(obj.callback(msg, from, message), message.chat.id);
+					TelegramBot.send(obj.callback(msg, from, message), chatId);
 				}
 			} else {
 				if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
