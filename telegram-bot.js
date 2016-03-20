@@ -1,5 +1,6 @@
 TelegramBot = {};
 TelegramBot.triggers = {};
+TelegramBot.conversations = {};
 TelegramBot.apiBase = "https://api.telegram.org/bot";
 TelegramBot.token = false;
 TelegramBot.init = false;
@@ -16,7 +17,7 @@ TelegramBot.parseCommandString = function(msg) {
 }
 
 TelegramBot.poll = function() {
-	const result = TelegramBot.method("getUpdates", {
+	const result = TelegramBot.method('getUpdates', {
 		offset: TelegramBot.getUpdatesOffset + 1,
 	});
 	
@@ -44,17 +45,29 @@ TelegramBot.parsePollResult = function(data) {
 		const message = item.message;
 		const type = Object.keys(message).pop();
 		const from = item.message.from.username;
-		if(type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
-			const msg = TelegramBot.parseCommandString(item.message.text);
-			const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
+		const chatId = message.chat.id;
+		var is_conversation = false;
+		
+		if(typeof(TelegramBot.conversations[chatId]) !== 'undefined') {
+			const obj = _.find(TelegramBot.conversations[chatId], obj => obj.username == from);
 			if(obj) {
-				TelegramBot.send(obj.callback(msg, from, message), message.chat.id);
+				is_conversation = true;
+				obj.callback(from, message.text, chatId);
 			}
-		} else {
-			if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
-				TelegramBot.triggers[type].map(trigger => {
-					trigger.callback('N/A', from, message);
-				});
+		}
+		if(!is_conversation) {
+			if(type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
+				const msg = TelegramBot.parseCommandString(item.message.text);
+				const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
+				if(obj) {
+					TelegramBot.send(obj.callback(msg, from, message), chatId);
+				}
+			} else {
+				if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
+					TelegramBot.triggers[type].map(trigger => {
+						trigger.callback('N/A', from, message);
+					});
+				}
 			}
 		}
 	});
@@ -74,11 +87,40 @@ TelegramBot.addListener = function(command, callback, type = 'text') {
 			command: command,
 			callback: callback
 		});
-		console.log('Added command ' + command);
+		console.log('Added command: ' + command);
 	}
 	else {
-		console.log("Error adding command " + command);
+		console.log('Error adding command: ' + command);
 	}
+}
+
+TelegramBot.startConversation = function(username, chat_id, callback, init_vars) {
+	if(typeof(username) === 'string' && typeof(callback) === 'function') {
+		if(typeof(TelegramBot.conversations[chat_id]) === 'undefined') {
+			TelegramBot.conversations[chat_id] = [];
+		}
+		if(typeof(init_vars) !== 'object') init_vars = {};
+		TelegramBot.conversations[chat_id].push(_.defaults(init_vars, { username: username, callback: callback}));
+		console.log('Started conversation in Chat ID (' + chat_id + ') with ' + username);
+	} else
+		console.log('Error starting conversation in Chat ID (' + chat_id + ') with ' +  username);
+	//console.log('startConversation: Now we have ' + Object.keys(TelegramBot.conversations).length + ' chats with active conversations.');
+}
+
+TelegramBot.endConversation = function(username, chat_id) {
+	if(typeof(TelegramBot.conversations[chat_id]) !== 'undefined') {
+		const obj = _.find(TelegramBot.conversations[chat_id], obj => obj.username == username);
+		if(obj) {
+			TelegramBot.conversations[chat_id] = _.reject(TelegramBot.conversations[chat_id], obj => obj.username == username);
+			if(_.isEmpty(TelegramBot.conversations[chat_id]))
+				TelegramBot.conversations = _.omit(TelegramBot.conversations, chat_id);
+			
+			console.log('Conversation ended with ' +  username + ' in Chat ID(' + chat_id + '). ' + Object.keys(TelegramBot.conversations).length + ' chats with active conversations remaining.');
+			return true;
+		}
+	}
+	console.log('There was no conversation with ' +  username + ' in Chat ID(' + chat_id + ').');
+	//console.log('endConversation: Now we have ' + Object.keys(TelegramBot.conversations).length + ' chats with active conversations.');
 }
 
 TelegramBot.method = function(method, object = {}) {
@@ -91,8 +133,7 @@ TelegramBot.method = function(method, object = {}) {
 		}
 	}
 	catch (e) {
-		console.log("Error in polling:");
-		console.log(e);
+		console.log('Error in polling: ' + e);
 		return false;
 	}
 }

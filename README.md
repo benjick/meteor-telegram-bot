@@ -73,7 +73,40 @@ msg = TelegramBot.parseCommandString(msg);
 console.log(msg); // [ '/test', 'is', 'fun' ]
 ```
 
-This means you can get the arguments in a nice way. This is done when a webHook is recieved.
+This means you can get the arguments in a nice way. This is done when a webHook is received.
+
+#### TelegramBot.startConversation(username, chat_id, callback, init_vars)
+
+Starts a conversation with a specific user in a specific chat. `callback` method is called whenever the user replies to this conversation. The callback method takes 3 parameters: `username`, `message`, `chat_id`.
+
+The `init_vars` argument is to allow you to use custom variables in your conversation,illustrated below with `stage`, `first_message`, and `second_message`.
+
+For example:
+```js
+TelegramBot.startConversation(username, chat_id, function(username, message, chat_id) {
+    var obj = _.find(TelegramBot.conversations[chat_id], obj => obj.username == username);
+    console.log('Conversation Status: ' + obj);
+    switch(obj.stage) {
+        case 0:
+            TelegramBot.send('You have first responded with: ' + message + '\nWhat else do you want to say?', chat_id);
+            obj.first_message = message;
+            obj.stage++;
+            break;
+
+        case 1:
+            TelegramBot.send('You then said: ' + message, chat_id);
+            obj.second_message = message;
+            TelegramBot.endConversation(username, chat_id);
+            break;
+    }
+}, {stage: 0, first_message: "", second_message: ""} );
+```
+
+> A full example of conversation handling is given below in the Examples section.
+
+#### TelegramBot.endConversation(username, chat_id)
+
+Used to end a conversation session.
 
 ### A few examples
 
@@ -142,5 +175,42 @@ TelegramBot.addListener('/geo', function(command, username, original) {
 		latitude: 59.329323,
 		longitude: 18.068581
 	});
+});
+```
+
+#### Conversations
+
+You can monitor all incoming chat messages from a user using conversations.
+
+Below is a basic example showing how a Bot can ask for 3 responses and print them out.
+The conversation is initiated by the user using `/start`.
+
+```js
+TelegramBot.addListener('/start', function(command, username, messageraw) {
+    TelegramBot.startConversation(username, messageraw.chat.id, function(username, message, chat_id) {
+        var obj = _.find(TelegramBot.conversations[chat_id], obj => obj.username == username);
+        switch(obj.stage) {
+            case 0:
+                obj.personName = message;
+                TelegramBot.send('Cool. What\'s your height?', chat_id);
+                obj.stage++;
+                break;
+
+            case 1:
+                obj.personHeight = message;
+                // Sample markdown support - name will be bold
+                TelegramBot.send('Nice. What do you work as, *' + obj.personName + '*?', chat_id, true);
+                obj.stage++;
+                break;
+
+            case 2:
+                obj.personJob = message;
+                TelegramBot.send('Nice to meet you, ' + obj.personHeight + '-tall ' + obj.personJob + ' ' + obj.personName + '!', chat_id);
+                break;
+        }
+        console.log('Conversation Status: ' + obj);
+    }, {stage: 0, personName: "", personHeight: "", personJob: ""} );
+    // The return in this listener will be the first prompt
+    return "Hey, what's your name?";
 });
 ```
