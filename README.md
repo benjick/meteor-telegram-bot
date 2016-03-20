@@ -2,7 +2,7 @@ Adds an easy to use Telegram Bot API wrapper.
 
 ## Installation
 
-    meteor add shrmn:telegram-bot
+    meteor add benjick:telegram-bot
 
 ## Usage
 
