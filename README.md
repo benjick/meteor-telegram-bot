@@ -108,6 +108,24 @@ TelegramBot.startConversation(username, chat_id, function(username, message, cha
 
 Used to end a conversation session.
 
+#### TelegramBot.setCatchAllText(enabled, callback)
+
+Allows you to set a method to capture all text messages that have not been otherwise registered with a trigger or an active conversation.
+
+The boolean first argument, `enabled`, allows you to register/de-register the catchAll.
+
+The callback will receive 2 arguments: the `username` and the entire [Message object](https://core.telegram.org/bots/api#message). No return value is needed - you will need to call your own `TelegramBot.send` method if you wish to reply with a message.
+
+Here is a basic example which just repeats everything the user has typed and formats it into Markdown:
+
+```js
+TelegramBot.setCatchAllText(true, function(username, message) {
+    TelegramBot.send("Markdown-flavored Message:\n" + message.text, message.chat.id, true);
+});
+```
+> Note that the Telegram Bot API does not embrace user-formatted code blocks in \`backticks\`
+
+
 ### A few examples
 
 ```js
@@ -218,6 +236,9 @@ TelegramBot.addListener('/start', function(command, username, messageraw) {
 ---
 
 ## Changelogs
+#### Version 1.2.1
+1. In line with Conversations support, added a Catch-all method for unhandled texts
+   - `TelegramBot.setCatchAllText()`
 #### Version 1.2.0
 1. Adds basic Conversations support
    - `TelegramBot.startConversation()`

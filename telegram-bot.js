@@ -1,6 +1,7 @@
 TelegramBot = {};
 TelegramBot.triggers = {};
 TelegramBot.conversations = {};
+TelegramBot.catchAllText = { enabled: false, callback: function(username, message) {console.log('Default catchAll Method. Received: ' + message);} };
 TelegramBot.apiBase = "https://api.telegram.org/bot";
 TelegramBot.token = false;
 TelegramBot.init = false;
@@ -61,7 +62,7 @@ TelegramBot.parsePollResult = function(data) {
 				const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
 				if(obj) {
 					TelegramBot.send(obj.callback(msg, from, message), chatId);
-				}
+				} else if(TelegramBot.catchAllText.enabled) TelegramBot.catchAllText.callback(from, message);
 			} else {
 				if(typeof(TelegramBot.triggers[type]) !== 'undefined') {
 					TelegramBot.triggers[type].map(trigger => {
@@ -122,6 +123,14 @@ TelegramBot.endConversation = function(username, chat_id) {
 	console.log('There was no conversation with ' +  username + ' in Chat ID(' + chat_id + ').');
 	//console.log('endConversation: Now we have ' + Object.keys(TelegramBot.conversations).length + ' chats with active conversations.');
 }
+
+TelegramBot.setCatchAllText = function(enabled, callback) {
+	TelegramBot.catchAllText.enabled = enabled;
+	if(enabled) {
+		console.log('Registered catch-all for texts');
+		TelegramBot.catchAllText.callback = callback;
+	} else console.log('De-registered catch-all for texts');
+};
 
 TelegramBot.method = function(method, object = {}) {
 	try {
