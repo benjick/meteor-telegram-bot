@@ -236,9 +236,11 @@ TelegramBot.addListener('/start', function(command, username, messageraw) {
 ---
 
 ## Changelogs
+
 #### Version 1.2.1
 1. In line with Conversations support, added a Catch-all method for unhandled texts
    - `TelegramBot.setCatchAllText()`
+
 #### Version 1.2.0
 1. Adds basic Conversations support
    - `TelegramBot.startConversation()`
