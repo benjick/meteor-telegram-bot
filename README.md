@@ -214,3 +214,12 @@ TelegramBot.addListener('/start', function(command, username, messageraw) {
     return "Hey, what's your name?";
 });
 ```
+
+---
+
+## Changelogs
+#### Version 1.2.0
+1. Adds basic Conversations support
+   - `TelegramBot.startConversation()`
+   - `TelegramBot.endConversation()`
+2. Added check to prevent duplicate poll updates
