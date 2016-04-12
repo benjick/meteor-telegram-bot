@@ -1,8 +1,8 @@
 Package.describe({
-  name: 'benjick:telegram-bot',
+  name: 'unglued:telegram-bot',
   version: '1.2.2',
   summary: 'TelegramBot API wrapper',
-  git: 'https://github.com/benjick/meteor-telegram-bot',
+  git: 'https://github.com/zenador/meteor-telegram-bot',
   documentation: 'README.md'
 });
 
@@ -14,6 +14,6 @@ Package.onUse(function(api) {
 });
 
 Package.onTest(function(api) {
-  api.use(['tinytest','benjick:telegram-bot','http'], 'server');
+  api.use(['tinytest','unglued:telegram-bot','http'], 'server');
   api.addFiles('telegram-bot-tests.js', 'server');
 });
