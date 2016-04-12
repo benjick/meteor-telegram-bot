@@ -44,7 +44,10 @@ TelegramBot.parsePollResult = function(data) {
 		TelegramBot.getUpdatesOffset = item.update_id;
 
 		const message = item.message;
-		const type = Object.keys(message).pop();
+		keys = Object.keys(message);
+		if (keys[keys.length-1] == "entities")
+			keys.pop();
+		const type = keys.pop();
 		const from = item.message.from.username;
 		const chatId = message.chat.id;
 		var is_conversation = false;
