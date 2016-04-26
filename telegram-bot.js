@@ -1,7 +1,7 @@
 TelegramBot = {};
 TelegramBot.triggers = {};
 TelegramBot.conversations = {};
-TelegramBot.conversations = {};
+TelegramBot.callbacks = {};
 TelegramBot.catchAllText = {
 	enabled: false,
 	callback: (username, message) => console.log('Default catchAll Method. Received: ' + message)
@@ -82,6 +82,19 @@ TelegramBot.parsePollResult = data => {
 						trigger.callback('N/A', fromUsername, message);
 					});
 				}
+			}
+		} else if (item.callback_query) {
+			const callback_query = item.callback_query;
+
+			const chatId = callback_query.message.chat.id;
+			const messageId = callback_query.message.message_id;
+
+			const callback = TelegramBot.callbacks[chatId][messageId];
+
+			if (callback) {
+				callback(callback_query.data);
+
+				delete TelegramBot.callbacks[chatId][messageId];
 			}
 		}
 	});
@@ -165,7 +178,7 @@ TelegramBot.method = (method, params = {}) => {
 		const url = TelegramBot.requestUrl(method);
 		const res = HTTP.get(url, { params });
 		
-		if(res.data) {
+		if (res.data) {
 			return res.data;
 		}
 	} catch (e) {
@@ -174,21 +187,30 @@ TelegramBot.method = (method, params = {}) => {
 	}
 }
 
-TelegramBot.send = (msg, chatId, markdown) => {
+TelegramBot.send = (msg, chatId, markdown, reply_markup, replyCallback) => {
 	if (!msg) {
 		return false;
 	}
 
-	if (markdown) {
-		TelegramBot.method('sendMessage', {
-			chat_id: chatId,
-			text: msg,
-			parse_mode: 'Markdown'
-		});
-	} else {
-		TelegramBot.method('sendMessage', {
-			chat_id: chatId,
-			text: msg
-		});
+	const sendMessageObject = {
+		chat_id: chatId,
+		text: msg
+	};
+
+	if (markdown)
+		sendMessageObject.parse_mode = 'Markdown';
+
+	if (reply_markup)
+		sendMessageObject.reply_markup = JSON.stringify(reply_markup);
+
+	const res = TelegramBot.method('sendMessage', sendMessageObject);
+
+	if (res && reply_markup && replyCallback) {
+		if (!TelegramBot.callbacks[chatId])
+			TelegramBot.callbacks[chatId] = {};
+
+		TelegramBot.callbacks[chatId][res.result.message_id] = replyCallback;
 	}
+
+	return res;
 }
