@@ -54,15 +54,14 @@ Check if the auth token is correct:
 
     TelegramBot.method(getMe)
 
-#### TelegramBot.send(message, chatId);
-
-Shorthand for `TelegramBot.method('sendMessage', { chat_id: chatId, text: message })`.
-
 #### TelegramBot.send(message, chatId, markdown, reply_markup, replyCallback);
 
-- markdown (optional): whether the message should be parsed as markdown
-- reply_markup (optional): used to send custom keyboards
-- replyCallback (optional): used to evaluate the result of a custom keyboard
+Without the last 3 optional parameters, it is equivalent to `TelegramBot.method('sendMessage', { chat_id: chatId, text: message })`.
+
+Additional optional parameters:
+- markdown (optional): whether the message should be parsed with Markdown syntax
+- reply_markup (optional): used to send custom (inline) keyboards
+- replyCallback (optional): used to evaluate the result of a custom (inline) keyboard
 
 #### TelegramBot.triggers = []
 
@@ -242,6 +241,11 @@ TelegramBot.addListener('/start', function(command, username, messageraw) {
 ---
 
 ## Changelogs
+
+#### Version 1.3.0 (Thanks @elie222)
+1. Added the ability to use inline keyboards (with callback support)
+2. Cleaned up code - now using ES6 arrow functions
+3. Bug fix in `parsePollResult`
 
 #### Version 1.2.2 (Thanks @zenador)
 1. Updated to support Telegram Bot API 2.0
