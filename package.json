@@ -1,10 +1,14 @@
 {
   "name": "meteor-telegram-bot",
-  "devDependencies": {
-    "eslint": "^1.10.3",
-    "eslint-config-airbnb": "^2.0.0"
+  "scripts": {
+    "test": "meteor test-packages ./"
   },
-  "eslintConfig": {
-    "extends": "airbnb/base"
+  "devDependencies": {
+    "eslint": "^2.10.2",
+    "eslint-config-airbnb-base": "^3.0.1",
+    "eslint-plugin-import": "^1.8.0"
+  },
+  "dependencies": {
+    "winston": "^2.2.0"
   }
 }

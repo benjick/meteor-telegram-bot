@@ -1,0 +1,11 @@
+{
+  "extends": "airbnb-base",
+  "env": {
+    "meteor": true,
+    "node": true
+  },
+  "rules": {
+    "array-callback-return": 0,
+    "no-console": 0
+  }
+}
