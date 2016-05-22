@@ -237,6 +237,10 @@ TelegramBot.addListener('/start', function(command, username, messageraw) {
 
 ## Changelogs
 
+#### Version 1.2.2 (Thanks @zenador)
+1. Updated to support Telegram Bot API 2.0
+   - Fixed bug with bot commands not being recognised as text messages (and hence not getting handled) with the addition of `entities` field to the message object
+
 #### Version 1.2.1
 1. In line with Conversations support, added a Catch-all method for unhandled texts
    - `TelegramBot.setCatchAllText()`
