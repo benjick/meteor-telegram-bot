@@ -58,6 +58,12 @@ Check if the auth token is correct:
 
 Shorthand for `TelegramBot.method('sendMessage', { chat_id: chatId, text: message })`.
 
+#### TelegramBot.send(message, chatId, markdown, reply_markup, replyCallback);
+
+- markdown (optional): whether the message should be parsed as markdown
+- reply_markup (optional): used to send custom keyboards
+- replyCallback (optional): used to evaluate the result of a custom keyboard
+
 #### TelegramBot.triggers = []
 
 Array containing all the added listeners and their callbacks
