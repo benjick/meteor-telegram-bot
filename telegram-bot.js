@@ -92,7 +92,7 @@ TelegramBot.parsePollResult = data => {
 			const callback = TelegramBot.callbacks[chatId][messageId];
 
 			if (callback) {
-				callback(callback_query.data);
+				callback(callback_query.data, chatId, messageId);
 
 				delete TelegramBot.callbacks[chatId][messageId];
 			}
