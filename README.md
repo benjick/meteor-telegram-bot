@@ -61,7 +61,7 @@ Without the last 3 optional parameters, it is equivalent to `TelegramBot.method(
 Additional optional parameters:
 - markdown (optional): whether the message should be parsed with Markdown syntax
 - reply_markup (optional): used to send custom (inline) keyboards
-- replyCallback (optional): used to evaluate the result of a custom (inline) keyboard
+- replyCallback (optional): used to evaluate the result of a custom (inline) keyboard. If the replyCallback returns _true_, then the callback itself can be used several times (important for inline keyboards)
 
 #### TelegramBot.triggers = []
 
