@@ -24,7 +24,7 @@ Add a command which should be listened for by the server. If this command is fou
 
 See examples below
 
-If you set type to anything else than `'text'` (default value) in type `command` has no effect and that function will run every time you get something with that type (for example `document` (getting files) or `voice` (voice recordings)).
+If you set type to anything else than `'text'` (default value) in type `command` has no effect and that function will run every time you get something with that type (for example `document` (getting files) or `voice` (voice recordings)). [Full list of available types](https://core.telegram.org/bots/api#available-types)
 
 #### TelegramBot.start();
 
