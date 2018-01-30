@@ -54,7 +54,7 @@ TelegramBot.parsePollResult = data => {
 				keys.pop();
 			
 			const type = keys.pop();
-			const fromUsername = item.message.from.username;
+			const fromUsername = typeof(item.message.from.username) === 'undefined' ? item.message.from.first_name : item.message.from.username;
 			const chatId = message.chat.id;
 			let isConversation = false;
 			
