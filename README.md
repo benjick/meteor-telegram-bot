@@ -135,30 +135,30 @@ TelegramBot.setCatchAllText(true, function(username, message) {
 
 ```js
 if(Meteor.isServer) {
-	Meteor.startup(function() {
-	// set our token
-	TelegramBot.token = '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11';
-	TelegramBot.start(); // start the bot
-	// add a listener for '/test'
-	TelegramBot.addListener('/test', function(command) {
-		// command will contain the entire command in an array where command[0] is the command.
-		// In this case '/test'. Each argument will follow.
-		if(!command[1]) { // if no arguments
-			return false
-			// if you return false the bot wont answer
-		}
-		// command[1] will be the first argument, command[2] the second etc
-		// below the bot will reply with 'test: hi' if you sent him /test hi
-		return "test: " + command[1]
-		});
-	});
+  Meteor.startup(function() {
+  // set our token
+  TelegramBot.token = '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11';
+  TelegramBot.start(); // start the bot
+  // add a listener for '/test'
+  TelegramBot.addListener('/test', function(command) {
+    // command will contain the entire command in an array where command[0] is the command.
+    // In this case '/test'. Each argument will follow.
+    if(!command[1]) { // if no arguments
+      return false
+      // if you return false the bot wont answer
+    }
+    // command[1] will be the first argument, command[2] the second etc
+    // below the bot will reply with 'test: hi' if you sent him /test hi
+    return "test: " + command[1]
+    });
+  });
 }
 ```
 
 ```js
 // You can also get the username via the second argument
 TelegramBot.addListener('/hi', function(command, username) {
-	return "hi @" + username
+  return "hi @" + username
 })
 ```
 
@@ -166,11 +166,11 @@ Listing all commands:
 
 ```js
 TelegramBot.addListener('/help', function(command) {
-	var msg = "I have the following commands loaded:\n";
-	TelegramBot.triggers.text.forEach(function (post) {
-	msg = msg + "- " + post.command + "\n";
-	});
-	return msg;
+  var msg = "I have the following commands loaded:\n";
+  TelegramBot.triggers.text.forEach(function (post) {
+  msg = msg + "- " + post.command + "\n";
+  });
+  return msg;
 });
 ```
 
@@ -178,12 +178,12 @@ Example using other types than the default
 
 ```js
 TelegramBot.addListener('incoming_document', function(c, u, o) {
-	TelegramBot.send('Got a file with ID ' + o.document.file_id, o.chat.id);
-	var file = TelegramBot.method('getFile', {
-		file_id: o.document.file_id
-	}).result.file_path;
-	// Don't do this in production because it will expose your Telegram Bot's API key
-	TelegramBot.send('Download the file at https://api.telegram.org/file/bot' + TelegramBot.token + '/' + file, o.chat.id);
+  TelegramBot.send('Got a file with ID ' + o.document.file_id, o.chat.id);
+  var file = TelegramBot.method('getFile', {
+    file_id: o.document.file_id
+  }).result.file_path;
+  // Don't do this in production because it will expose your Telegram Bot's API key
+  TelegramBot.send('Download the file at https://api.telegram.org/file/bot' + TelegramBot.token + '/' + file, o.chat.id);
 }, 'document');
 ```
 
@@ -193,11 +193,11 @@ You can do what you want in the callback for the listener really. For example ca
 
 ```js
 TelegramBot.addListener('/geo', function(command, username, original) {
-	TelegramBot.method('sendLocation',{
-		chat_id: original.chat.id,
-		latitude: 59.329323,
-		longitude: 18.068581
-	});
+  TelegramBot.method('sendLocation',{
+    chat_id: original.chat.id,
+    latitude: 59.329323,
+    longitude: 18.068581
+  });
 });
 ```
 
