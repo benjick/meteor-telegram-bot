@@ -138,6 +138,10 @@ if(Meteor.isServer) {
 	Meteor.startup(function() {
 	// set our token
 	TelegramBot.token = '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11';
+	// set the webhook base url if you want to use webhooks, otherwise it defaults to polling. Must use HTTPS or telegram won't accept it
+	TelegramBot.webhookBaseUrl = 'https://mydomain.com'
+	// override the length of the polling interval in ms, not used in webhook method. defaults to the value below if omitted
+	TelegramBot.intervalMs = 1000
 	TelegramBot.start(); // start the bot
 	// add a listener for '/test'
 	TelegramBot.addListener('/test', function(command) {
