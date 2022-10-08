@@ -8,8 +8,10 @@ TelegramBot.catchAllText = {
 };
 TelegramBot.apiBase = "https://api.telegram.org/bot";
 TelegramBot.token = false;
+TelegramBot.webhookBaseUrl = false;
 TelegramBot.init = false;
 TelegramBot.getUpdatesOffset = 0;
+TelegramBot.intervalMs = 1000;
 TelegramBot.interval = false;
 
 TelegramBot.parseCommandString = msg => {
@@ -33,71 +35,81 @@ TelegramBot.poll = () => {
 }
 
 TelegramBot.start = () => {
-	TelegramBot.poll();
-	TelegramBot.interval = Meteor.setInterval(TelegramBot.poll, 1000);
+	if (!TelegramBot.webhookBaseUrl) {
+		TelegramBot.poll();
+		TelegramBot.interval = Meteor.setInterval(TelegramBot.poll, TelegramBot.intervalMs);
+	} else {
+		TelegramBot.setupRoutes();
+		TelegramBot.setWebhook();
+	}
 }
 
 TelegramBot.stop = () => {
-	Meteor.clearInterval(TelegramBot.interval);
+	if (!TelegramBot.webhookBaseUrl)
+		Meteor.clearInterval(TelegramBot.interval);
+	else
+		TelegramBot.method('deleteWebhook');
+}
+
+TelegramBot.processUpdate = item => {
+	TelegramBot.getUpdatesOffset = item.update_id;
+
+	const message = item.message;
+
+	if (message) {
+		const keys = Object.keys(message);
+		
+		if (keys[keys.length - 1] === "entities")
+			keys.pop();
+		
+		const type = keys.pop();
+		const fromUsername = item.message.from.username;
+		const chatId = message.chat.id;
+		let isConversation = false;
+		
+		if (typeof(TelegramBot.conversations[chatId]) !== 'undefined') {
+			const obj = _.find(TelegramBot.conversations[chatId], obj => obj.username === fromUsername);
+			
+			if (obj) {
+				isConversation = true;
+				obj.callback(fromUsername, message.text, chatId);
+			}
+		}
+		
+		if (!isConversation) {
+			if (type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
+				const msg = TelegramBot.parseCommandString(item.message.text);
+				const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
+				
+				if(obj) {
+					TelegramBot.send(obj.callback(msg, fromUsername, message), chatId);
+				} else if (TelegramBot.catchAllText.enabled) {
+					TelegramBot.catchAllText.callback(fromUsername, message);
+				}
+			} else if (typeof(TelegramBot.triggers[type]) !== 'undefined') {
+				TelegramBot.triggers[type].map(trigger => {
+					trigger.callback('N/A', fromUsername, message);
+				});
+			}
+		}
+	} else if (item.callback_query) {
+		const callback_query = item.callback_query;
+
+		const chatId = callback_query.message.chat.id;
+		const messageId = callback_query.message.message_id;
+
+		const callback = TelegramBot.callbacks[chatId][messageId];
+
+		if (callback) {
+			callback(callback_query.data);
+
+			delete TelegramBot.callbacks[chatId][messageId];
+		}
+	}
 }
 
 TelegramBot.parsePollResult = data => {
-	data.map(item => {
-		TelegramBot.getUpdatesOffset = item.update_id;
-
-		const message = item.message;
-
-		if (message) {
-			const keys = Object.keys(message);
-			
-			if (keys[keys.length - 1] === "entities")
-				keys.pop();
-			
-			const type = keys.pop();
-			const fromUsername = item.message.from.username;
-			const chatId = message.chat.id;
-			let isConversation = false;
-			
-			if (typeof(TelegramBot.conversations[chatId]) !== 'undefined') {
-				const obj = _.find(TelegramBot.conversations[chatId], obj => obj.username === fromUsername);
-				
-				if (obj) {
-					isConversation = true;
-					obj.callback(fromUsername, message.text, chatId);
-				}
-			}
-			
-			if (!isConversation) {
-				if (type === 'text' && typeof(TelegramBot.triggers.text) !== 'undefined') {
-					const msg = TelegramBot.parseCommandString(item.message.text);
-					const obj = _.find(TelegramBot.triggers.text, obj => obj.command == msg[0]);
-					
-					if(obj) {
-						TelegramBot.send(obj.callback(msg, fromUsername, message), chatId);
-					} else if (TelegramBot.catchAllText.enabled) {
-						TelegramBot.catchAllText.callback(fromUsername, message);
-					}
-				} else if (typeof(TelegramBot.triggers[type]) !== 'undefined') {
-					TelegramBot.triggers[type].map(trigger => {
-						trigger.callback('N/A', fromUsername, message);
-					});
-				}
-			}
-		} else if (item.callback_query) {
-			const callback_query = item.callback_query;
-
-			const chatId = callback_query.message.chat.id;
-			const messageId = callback_query.message.message_id;
-
-			const callback = TelegramBot.callbacks[chatId][messageId];
-
-			if (callback) {
-				callback(callback_query.data);
-
-				delete TelegramBot.callbacks[chatId][messageId];
-			}
-		}
-	});
+	data.map(TelegramBot.processUpdate);
 }
 
 TelegramBot.requestUrl = method => {
@@ -213,4 +225,28 @@ TelegramBot.send = (msg, chatId, markdown, reply_markup, replyCallback) => {
 	}
 
 	return res;
+}
+
+TelegramBot.setWebhook = () => {
+	const url = TelegramBot.webhookBaseUrl + '/' + TelegramBot.token + '/HOOK';
+	console.log("Setting webhook: "+url);
+	const res = TelegramBot.method('setWebhook', {
+		url: url
+	});
+	return res;
+}
+
+TelegramBot.setupRoutes = () => {
+	Router.map(function () {
+		this.route('hookRoute', {
+			where: 'server',
+			path: '/' + TelegramBot.token + '/HOOK',
+			action: function() {
+				if (this.request.method === 'POST') {
+					TelegramBot.processUpdate(this.request.body);
+					this.response.end(".");
+				}
+			}
+		});
+	});
 }
